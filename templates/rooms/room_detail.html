@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% comment %} 변수인 rooms의 이름은 rooms-views.py의 context 내의 변수명과 같아야한다 {% endcomment %}
+{% comment %} base.html을 여기 home.html에서 사용하려면 extends를 해줘야한다 {% endcomment %}
+
+{% block page_title %}
+    {{room.name}}
+{% endblock page_title %}
+
+{% comment %} block을 사용하여 for문을 base에 출력하게 한다 {% endcomment %}
+{% comment %} 자식이 생성한 컨텐츠를 부모가 사용할 수 있게 해준다 {% endcomment %}
+{% block content %}
+<div>
+    <h1>{{room.name}}</h1>
+    <h3>{{room.description}}</h3>
+</div>
+
+<div>
+<h2>By:{{room.host.username}}
+{% if room.host.superhost %}
+    (superhost)
+{% endif %}</h2>
+<h3>Amenities</h3>
+<ul>
+{% for a in room.amenities.all %}
+    <li>{{a}}</li>
+{% endfor %}
+</ul>
+<h3>Facilities</h3>
+<ul>
+{% for a in room.facilities.all %}
+    <li>{{a}}</li>
+{% endfor %}
+</ul>
+<h3>House Rules</h3>
+<ul>
+{% for a in room.house_rules.all %}
+    <li>{{a}}</li>
+{% endfor %}
+</ul>
+</div>
+{% endblock %}
