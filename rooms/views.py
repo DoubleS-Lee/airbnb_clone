@@ -1,7 +1,8 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, View
 from django.shortcuts import render
 from django_countries import countries
-from . import models
+from django.core.paginator import Paginator
+from . import models, forms
 
 # 우리는 Templates로(html) 우리가 원하는 값(파이썬에서 만든것)들을 보낼수있다
 # 파이썬 문법을 render해서 html로 바꿔주는 역할을 한다
@@ -34,110 +35,96 @@ class RoomDetail(DetailView):
     model = models.Room
 
 
-def search(request):
-    # 기본 값 설정하는 코드
-    city = request.GET.get("city", "Anywhere")
-    city = str.capitalize(city)
-    # 기본 값 설정하는 코드
-    country = request.GET.get("country", "KR")
-    # search.html에서 pk는 int 이므로 여기서 int를 써준다
-    room_type = int(request.GET.get("room_type", "0"))
-    price = int(request.GET.get("price", 0))
-    guests = int(request.GET.get("guests", 0))
-    bedrooms = int(request.GET.get("bedrooms", 0))
-    beds = int(request.GET.get("beds", 0))
-    baths = int(request.GET.get("baths", 0))
-    instant = bool(request.GET.get("instant", False))
-    superhost = bool(request.GET.get("superhost", False))
-    # 선택된(selected) amenity와 Facility들을 알아내기 위한 코드
-    # amenity와 Facility가 개수가 여러개이므로 getlist를 사용한다
-    # 이렇게 해서 list로 불러온다
-    s_amenities = request.GET.getlist("amenities")
-    s_facilities = request.GET.getlist("facilities")
+class SearchView(View):
 
-    # 기본 값 모음
-    form = {
-        "city": city,
-        "s_room_type": room_type,
-        "s_country": country,
-        "price": price,
-        "guests": guests,
-        "bedrooms": bedrooms,
-        "beds": beds,
-        "baths": baths,
-        "s_amenities": s_amenities,
-        "s_facilities": s_facilities,
-        "instant": instant,
-        "superhost": superhost,
-    }
+    """ SearchView Definition """
 
-    # 데이터 베이스 내의 값 모음
-    room_types = models.RoomType.objects.all()
-    amenities = models.Amenity.objects.all()
-    facilities = models.Facility.objects.all()
+    def get(self, request):
+        country = request.GET.get("country")
+        if country:
+            # 한번 검색했던것들을 웹이 기억하고 있게 하는 기능 = request.GET을 넣어준다
+            form = forms.SearchForm(request.GET)
+            # 만약 에러가 없다면 그 데이터 안에 뭐가 있는지 보는 기능
+            if form.is_valid():
+                city = form.cleaned_data.get("city")
+                country = form.cleaned_data.get("country")
+                room_type = form.cleaned_data.get("room_type")
+                price = form.cleaned_data.get("price")
+                guests = form.cleaned_data.get("guests")
+                bedrooms = form.cleaned_data.get("bedrooms")
+                beds = form.cleaned_data.get("beds")
+                baths = form.cleaned_data.get("baths")
+                instant_book = form.cleaned_data.get("instant_book")
+                superhost = form.cleaned_data.get("superhost")
+                amenities = form.cleaned_data.get("amenities")
+                facilities = form.cleaned_data.get("facilities")
 
-    choices = {
-        "countries": countries,
-        "room_types": room_types,
-        "amenities": amenities,
-        "facilities": facilities,
-    }
+                # 여기서부터는 field lookups를 이용하여 검색로직을 만들어보는 내용이다
+                filter_args = {}
 
-    # 여기서부터는 field lookups를 이용하여 검색로직을 만들어보는 내용이다
-    filter_args = {}
+                # city로 검색
+                if city != "Anywhere":
+                    filter_args["city__startswith"] = city
 
-    # city로 검색
-    if city != "Anywhere":
-        filter_args["city__startswith"] = city
+                # country로 검색
+                filter_args["country"] = country
 
-    # country로 검색
-    filter_args["country"] = country
+                # room_type으로 검색
+                # foreignkey를 설정해 놓은 경우
+                if room_type is not None:
+                    filter_args["room_type"] = room_type
 
-    # room_type으로 검색
-    # foreignkey를 설정해 놓은 경우
-    if room_type != 0:
-        filter_args["room_type__pk"] = room_type
+                # price로 검색
+                # foreignkey를 설정해 놓은 경우
+                if price is not None:
+                    filter_args["price__lte"] = price
 
-    # price로 검색
-    # foreignkey를 설정해 놓은 경우
-    if price != 0:
-        filter_args["price__lte"] = price
+                # guest로 검색
+                if guests is not None:
+                    filter_args["guests__lte"] = guests
 
-    # guest로 검색
-    if guests != 0:
-        filter_args["guests__lte"] = guests
+                # bedrooms로 검색
+                if bedrooms is not None:
+                    filter_args["bedrooms"] = bedrooms
 
-    # bedrooms로 검색
-    if bedrooms != 0:
-        filter_args["bedrooms"] = bedrooms
+                # beds로 검색
+                if beds is not None:
+                    filter_args["beds"] = beds
 
-    # beds로 검색
-    if beds != 0:
-        filter_args["beds"] = beds
+                # baths로 검색
+                if baths is not None:
+                    filter_args["baths__lte"] = baths
 
-    # baths로 검색
-    if baths != 0:
-        filter_args["baths__lte"] = baths
+                # instant로 검색
+                if instant_book is True:
+                    filter_args["instant_book"] = True
 
-    # instant로 검색
-    if instant is True:
-        filter_args["instant_book"] = True
+                # superhost로 검색
+                # foreignkey를 설정해 놓은 경우
+                if superhost is True:
+                    filter_args["host__superhost"] = True
 
-    # superhost로 검색
-    # foreignkey를 설정해 놓은 경우
-    if superhost is True:
-        filter_args["host__superhost"] = True
+                # amenities로 검색
+                for amenity in amenities:
+                    filter_args["amenities"] = amenity
 
-    # amenities로 검색
-    if len(s_amenities) > 0:
-        for s_amenity in s_amenities:
-            filter_args["amenities__pk"] = int(s_amenity)
+                # facilities로 검색
+                for facility in facilities:
+                    filter_args["facilities"] = facility
 
-    # facilities로 검색
-    if len(s_facilities) > 0:
-        for s_facility in s_facilities:
-            filter_args["facilities__pk"] = int(s_facility)
+                qs = models.Room.objects.filter(**filter_args).order_by("-created")
 
-    rooms = models.Room.objects.filter(**filter_args)
+                paginator = Paginator(qs, 10, orphans=5)
 
-    return render(request, "rooms/search.html", {**form, **choices, "rooms": rooms})
+                page = request.GET.get("page", 1)
+
+                rooms = paginator.get_page(page)
+
+                return render(
+                    request, "rooms/search.html", {"form": form, "rooms": rooms}
+                )
+
+        else:
+            form = forms.SearchForm()
+
+        return render(request, "rooms/search.html", {"form": form})
