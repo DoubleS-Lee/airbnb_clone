@@ -141,3 +141,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 
 # 미디어 파일의 경로를 인터넷 주소상 절대경로로 설정한다
 MEDIA_URL = "/media/"
+
+
+# Email Configration
+# mailgun.com 에서 API정보를 받아와서 붙여넣는다
+# sending - domain settings - SMTP credentials
+# 이대로 올려버리면 Github에서 다른 사람이 내 password를 볼 수 있으니까 이걸 다른 곳에 올리고 불러와야한다
+EMAIL_HOST = "smtp.mailgun.org"
+EMAIL_PORT = "587"
+EMAIL_HOST_USER = os.environ.get("MAILGUN_USERNAME")
+# PASSWORD는 우측 상단에 NEW SMTP USER를 생성해서 받아서 입력한다
+# 다시는 얻을 수 없는 고유한 코드이다
+EMAIL_HOST_PASSWORD = os.environ.get("MAILGUN_PASSWORD")
+# 메일 보내는 사람 지정
+EMAIL_FROM = "good-boy@sandboxca116bc21a9448deb0176d60fb45ba25.mailgun.org"
