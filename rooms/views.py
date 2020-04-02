@@ -19,7 +19,7 @@ class HomeView(ListView):
     # 컨텐츠 불러오기
     model = models.Room
     # 페이지 당 콘텐츠 개수
-    paginate_by = 10
+    paginate_by = 12
     # 초기 자동 정렬방식
     ordering = "created"
     # 마지막 페이지 뷰에 대한 설정

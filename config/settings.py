@@ -128,8 +128,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+# 이건 url을 나타낸다
 STATIC_URL = "/static/"
+# 이건 directory를 나타낸다
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 # 우리가 만든 User 클래스를 쓰려고 AUTH_USER_MODEL을 바꿔줌
 AUTH_USER_MODEL = "users.User"

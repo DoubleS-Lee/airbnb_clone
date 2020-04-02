@@ -136,3 +136,5 @@ dmypy.json
 
 # uploads 폴더를 깃허브에 올리지 않겠다는 의미
 uploads/
+
+node_modules/

@@ -142,3 +142,16 @@ class Room(core_models.TimeStampedModel):
                 all_ratings += review.rating_average()
             return round(all_ratings / len(all_reviews), 2)
         return 0
+
+    # 메인 화면에서 각 룸의 첫번째 사진 불러오기
+    def first_photo(self):
+        # 그냥 photo를 쓰면 사진 안의 QuerySet을 불러오고 photo,를 쓰면 이 array의 value를 불러온다
+        # 여기서는 사진 즉 value를 불러와야하므로 photo,를 쓴다
+        # 여기서 if문을 안썼을 경우 사진이 없다면 즉 len(self.photos.all()) == 0: 이라면
+        # value가 없는데 value를 달라고 하는 경우가 되므로 에러가 발생한다
+        # 여기서 None을 쓰거나 다른 정해진 사진으로 대체하면 된다
+        if len(self.photos.all()) == 0:
+            return None
+        else:
+            (photo,) = self.photos.all()[:1]
+        return photo.file.url

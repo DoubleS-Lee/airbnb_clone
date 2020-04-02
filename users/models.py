@@ -37,6 +37,16 @@ class User(AbstractUser):
 
     CURRENCY_CHOICES = ((CURRENCY_USD, "USD"), (CURRENCY_KRW, "KRW"))
 
+    LOGIN_EMAIL = "email"
+    LOGIN_GITHUB = "github"
+    LOGIN_KAKAO = "kakao"
+
+    LOGIN_CHOICES = (
+        (LOGIN_EMAIL, "Email"),
+        (LOGIN_GITHUB, "Github"),
+        (LOGIN_KAKAO, "Kakao"),
+    )
+
     # 데이터베이스의 초기값은 null=true를 하거나 defalut="" 를 써서 안에 디폴트값을 넣어줄수있다
     # 입력 필수값으로 지정하지 않으려면 blank=True를 해줘야한다
     # null과 blank는 데이터베이스이냐 필수입력값 지정이냐의 차이를 갖고 있다
@@ -57,6 +67,9 @@ class User(AbstractUser):
     superhost = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
     email_secret = models.CharField(max_length=120, default="", blank=True)
+    login_method = models.CharField(
+        max_length=50, choices=LOGIN_CHOICES, default=LOGIN_EMAIL
+    )
 
     def verify_email(self):
         if self.email_verified is False:
@@ -75,7 +88,3 @@ class User(AbstractUser):
             )
             self.save()
         return
-
-    # 여기 유저네임은 이 클래스가 참조한 AbstractUser 클래스 안에 존재한다
-    def __str__(self):
-        return self.username
