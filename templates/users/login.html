@@ -2,7 +2,7 @@
 
 {% block page_title %} 
 
-    Login 
+    Log In 
 
 {% endblock page_title %}
 
@@ -17,12 +17,7 @@
 
 
 
-        <form method="POST" action="{% url "users:login" %}" class="w-full">
-            {% csrf_token %}
-            <input type="email" placeholder="Email" class="mb-3">
-            <input type="password" placeholder="Password" class="mb-3">
-            <button class="btn bg-red-500 text-white ">Login</button>
-        </form>    
+        {% include 'mixins/auth/auth_form.html' with form=form cta='Log in' %}
 
         <div class="mt-5">
             <span class="mr-2">

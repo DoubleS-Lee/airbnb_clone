@@ -65,6 +65,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -157,3 +158,10 @@ EMAIL_HOST_USER = os.environ.get("MAILGUN_USERNAME")
 EMAIL_HOST_PASSWORD = os.environ.get("MAILGUN_PASSWORD")
 # 메일 보내는 사람 지정
 EMAIL_FROM = "good-boy@sandboxca116bc21a9448deb0176d60fb45ba25.mailgun.org"
+
+
+# Auth
+LOGIN_URL = "/users/login/"
+
+# Locale 장고번역기 사용(translator)
+LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)

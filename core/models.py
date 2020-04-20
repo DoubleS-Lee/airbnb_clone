@@ -1,4 +1,5 @@
 from django.db import models
+from . import managers
 
 # core를 새로 만들어줘서 다른 페이지들에 공통적으로 쓰이는 코드는 core에 모아준다
 class TimeStampedModel(models.Model):
@@ -9,6 +10,7 @@ class TimeStampedModel(models.Model):
     # auto_now=True는 업데이트 할때마다 이미 auto_now_add=True로 생성된 값을 새로고침하여 업데이트 해주는 기능
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    objects = managers.CustomModelManager()
 
     class Meta:
         # abstract 모델은 데이터베이스에 등록되지 않는다

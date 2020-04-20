@@ -1,5 +1,6 @@
 # 라이브러리 임포트 순서는 1.파이썬 기본 라이브러리 2.파이썬 외부 라이브러리 3.내가 만든 파이썬 라이브러리
 # 순으로 하는 것이 보기 편하다
+from django.utils import timezone
 from django.db import models
 
 from django.urls import reverse
@@ -12,6 +13,8 @@ from core import models as core_models
 
 # ForeignKey를 사용하기 위해 추가함
 from users import models as user_models
+
+from cal import Calendar
 
 
 class AbstractItem(core_models.TimeStampedModel):
@@ -155,3 +158,18 @@ class Room(core_models.TimeStampedModel):
         else:
             (photo,) = self.photos.all()[:1]
         return photo.file.url
+
+    def get_next_four_photos(self):
+        photos = self.photos.all()[1:5]
+        return photos
+
+    def get_calendars(self):
+        now = timezone.now()
+        this_year = now.year
+        this_month = now.month
+        next_month = this_month + 1
+        if this_month == 12:
+            next_month = 1
+        this_month_cal = Calendar(this_year, this_month)
+        next_month_cal = Calendar(this_year, next_month)
+        return [this_month_cal, next_month_cal]
